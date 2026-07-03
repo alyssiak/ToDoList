@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -25,24 +26,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         UINavigationBar.appearance().tintColor = .systemYellow
         
         // Собираем модуль списка (VIPER)
-        let listVC = ToDoListViewController()
-        let presenter = ToDoListPresenter()
-        let interactor = ToDoListInteractor()
-        let router = ToDoListRouter()
-
-        listVC.output = presenter
-        presenter.view = listVC
-        presenter.interactor = interactor
-        presenter.router = router
-        presenter.fromVC = listVC
-        interactor.output = presenter
-
-        let nav = UINavigationController(rootViewController: listVC)
-        nav.navigationBar.prefersLargeTitles = true
+//        let listVC = ToDoListViewController()
+//        let presenter = ToDoListPresenter()
+//        let interactor = ToDoListInteractor()
+//        let router = ToDoListRouter()
+//
+//        listVC.output = presenter
+//        presenter.view = listVC
+//        presenter.interactor = interactor
+//        presenter.router = router
+//        presenter.fromVC = listVC
+//        interactor.output = presenter
+//
+//        let nav = UINavigationController(rootViewController: listVC)
+//        nav.navigationBar.prefersLargeTitles = true
+        
+        let rootView = TaskListView()
+        let hostingController = UIHostingController(rootView: rootView)
+        
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = nav
+        window.rootViewController = hostingController
         window.makeKeyAndVisible()
+        
         window.tintColor = .systemYellow
         window.overrideUserInterfaceStyle = .dark
         self.window = window
