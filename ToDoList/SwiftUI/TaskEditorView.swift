@@ -1,17 +1,32 @@
 //
-//  AddTaskView.swift
-//  ToDoList
+//  TaskEditorView.swift
+//  TaskEditorView
 //
 //  Created by Alice Kamyshenko on 03.07.2026.
 //
 
 import SwiftUI
 
-struct AddTaskView: View {
+struct TaskEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     
+    let navigationTitle: String
+    let saveButtonTitle: String
     let onSave: (String) -> Void
+    
+    init(
+        initialTitle: String = "",
+        navigationTitle: String,
+        saveButtonTitle: String,
+        onSave: @escaping (String) -> Void
+    ) {
+        _title = State(initialValue: initialTitle)
+        self.navigationTitle = navigationTitle
+        self.saveButtonTitle = saveButtonTitle
+        self.onSave = onSave
+    }
+    
     
     var body: some View {
         NavigationStack {
@@ -28,12 +43,13 @@ struct AddTaskView: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Добавить") {
+                    Button(saveButtonTitle) {
                         onSave(title)
                         dismiss()
                     }
-                    .disabled(title.trimmingCharacters(
-                        in: .whitespaces
+                    .disabled(
+                        title.trimmingCharacters(
+                            in: .whitespaces
                     ).isEmpty)
                 }
             }
@@ -42,7 +58,11 @@ struct AddTaskView: View {
 }
 
 #Preview {
-    AddTaskView { title in
+    TaskEditorView(
+        initialTitle: "Изучить SwiftUI",
+        navigationTitle: "Редактирование",
+        saveButtonTitle: "Сохранить"
+    ) { title in
         print(title)
     }
 }

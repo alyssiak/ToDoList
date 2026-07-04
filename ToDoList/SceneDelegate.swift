@@ -40,8 +40,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //
 //        let nav = UINavigationController(rootViewController: listVC)
 //        nav.navigationBar.prefersLargeTitles = true
-        
-        let rootView = TaskListView()
+        let container = AppContainer()
+        let assembly = TaskListAssembly(
+            container: container
+        )
+        let rootView = assembly.makeView()
         let hostingController = UIHostingController(rootView: rootView)
         
         
