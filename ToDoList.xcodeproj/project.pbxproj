@@ -25,7 +25,9 @@
 		F663BEB82E869A6200CD6066 /* Exceptions for "ToDoList" folder in "ToDoList" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AppDelegate.swift,
 				Info.plist,
+				SceneDelegate.swift,
 			);
 			target = F663BEA22E869A6100CD6066 /* ToDoList */;
 		};
