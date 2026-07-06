@@ -9,9 +9,19 @@ import Foundation
 
 final class TaskListInteractor: TaskListInteractorProtocol {
     private let repository: TaskRepositoryProtocol
+    private let apiClient: TaskAPIClientProtocol
+    private let userDefaults: UserDefaults
+
+    private let importKey = "hasImportedSampleTasks"
     
-    init(repository: TaskRepositoryProtocol) {
+    init(
+        repository: TaskRepositoryProtocol,
+        apiClient: TaskAPIClientProtocol,
+        userDefaults: UserDefaults
+    ) {
         self.repository = repository
+        self.apiClient = apiClient
+        self.userDefaults = userDefaults
     }
     
     func fetchTasks(matching query: String?) async throws -> [ToDoTask] {
@@ -40,5 +50,23 @@ final class TaskListInteractor: TaskListInteractorProtocol {
 
     func deleteTask(id: UUID) async throws {
         try await repository.deleteTask(id: id)
+    }
+
+    func importSampleTasks() async throws {
+        guard !userDefaults.bool(forKey: importKey) else {
+            throw TaskImportError.alreadyImported
+        }
+
+        let tasks = try await apiClient.fetchSampleTasks()
+        try await repository.importTasks(tasks)
+        userDefaults.set(true, forKey: importKey)
+    }
+}
+
+enum TaskImportError: LocalizedError {
+    case alreadyImported
+
+    var errorDescription: String? {
+        "Sample tasks have already been imported."
     }
 }

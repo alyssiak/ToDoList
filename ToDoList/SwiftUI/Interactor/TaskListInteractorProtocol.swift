@@ -16,4 +16,5 @@ protocol TaskListInteractorProtocol {
     func updateTask(id: UUID, title: String, details: String?) async throws
     func toggleTask(id: UUID) async throws
     func deleteTask(id: UUID) async throws
+    func importSampleTasks() async throws
 }

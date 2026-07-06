@@ -18,7 +18,9 @@ final class TaskListAssembly {
     @MainActor
     func makeView() -> RootView {
         let interactor = TaskListInteractor(
-            repository: container.taskRepository
+            repository: container.taskRepository,
+            apiClient: container.taskAPIClient,
+            userDefaults: container.userDefaults
         )
         
         let router = TaskListRouter()

@@ -124,6 +124,23 @@ final class TaskListPresenter: ObservableObject {
     func editButtonTapped(_ task: ToDoTask) {
         router.showEdit(task)
     }
+
+    func importSampleTasks() {
+        Task {
+            isLoading = true
+
+            defer {
+                isLoading = false
+            }
+
+            do {
+                try await interactor.importSampleTasks()
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
+        }
+    }
     
     //MARK: - Private methods
     private func reloadTasks() async {

@@ -78,6 +78,22 @@ struct TaskListView: View {
                 prompt: "Поиск"
             )
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            presenter.importSampleTasks()
+                        } label: {
+                            Label(
+                                "Import sample tasks",
+                                systemImage: "square.and.arrow.down"
+                            )
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("More actions")
+                }
+
                 ToolbarItemGroup(placement: .bottomBar) {
                     Spacer()
                     
@@ -135,7 +151,12 @@ struct TaskListView: View {
     
     #Preview {
         let repository = CoreDataTaskRepository(stack: .shared)
-        let interactor = TaskListInteractor(repository: repository)
+        let apiClient = TaskAPIClient(session: .shared)
+        let interactor = TaskListInteractor(
+            repository: repository,
+            apiClient: apiClient,
+            userDefaults: .standard
+        )
         let router = TaskListRouter()
         let presenter = TaskListPresenter(interactor: interactor, router: router)
         

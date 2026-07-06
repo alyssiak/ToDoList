@@ -114,6 +114,24 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
         }
     }
 
+    func importTasks(_ tasks: [TaskSeed]) async throws {
+        let context = stack.backgroundContext()
+
+        try await context.perform {
+            let creationDate = Date()
+
+            for task in tasks {
+                let item = TaskItem(context: context)
+                item.id = UUID()
+                item.title = task.title
+                item.createdAt = creationDate
+                item.isCompleted = task.isCompleted
+            }
+
+            try context.save()
+        }
+    }
+
     private func fetchItem(
         id: UUID,
         in context: NSManagedObjectContext

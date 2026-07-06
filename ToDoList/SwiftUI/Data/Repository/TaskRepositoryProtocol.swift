@@ -16,4 +16,5 @@ protocol TaskRepositoryProtocol {
     func updateTask(id: UUID, title: String, details: String?) async throws
     func toggleTask(id: UUID) async throws
     func deleteTask(id: UUID) async throws
+    func importTasks(_ tasks: [TaskSeed]) async throws
 }
