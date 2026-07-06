@@ -8,13 +8,22 @@
 import Foundation
 import Combine
 
+struct TaskListAlert: Identifiable {
+    var id = UUID()
+    var message: String
+}
+
 @MainActor
 final class TaskListPresenter: ObservableObject {
-    
+    //MARK: - Property
     @Published private(set) var tasks: [ToDoTask] = []
+    @Published private(set) var isLoading = false
+
     @Published var searchText = ""
+    @Published var presentedError: TaskListAlert?
     
     private let interactor: TaskListInteractorProtocol
+    private let router: TaskListRouterProtocol
     
     var filteredTasks: [ToDoTask] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -47,10 +56,13 @@ final class TaskListPresenter: ObservableObject {
         return "\(count) \(word)"
     }
     
-    init(interactor: TaskListInteractorProtocol) {
+    //MARK: - Init
+    init(interactor: TaskListInteractorProtocol, router: TaskListRouterProtocol) {
         self.interactor = interactor
+        self.router = router
     }
     
+    //MARK: - Public Methods
     func loadTasks() async {
         await reloadTasks()
     }
@@ -105,7 +117,22 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
+    func addButtonTapped() {
+        router.showCreate()
+    }
+    
+    func editButtonTapped(_ task: ToDoTask) {
+        router.showEdit(task)
+    }
+    
+    //MARK: - Private methods
     private func reloadTasks() async {
+        isLoading = true
+        
+        defer {
+            isLoading = false
+        }
+        
         do {
             tasks = try await interactor.fetchTasks(
                 matching: nil
@@ -114,7 +141,8 @@ final class TaskListPresenter: ObservableObject {
             handle(error)
         }
     }
+    
     private func handle(_ error: Error) {
-        print("Task error:", error.localizedDescription)
+        presentedError = TaskListAlert(message: error.localizedDescription)
     }
 }

@@ -7,17 +7,6 @@
 
 import SwiftUI
 
-private enum EditorRoute: Identifiable {
-    case create
-    case edit(ToDoTask)
-    
-    var id: String {
-        switch self {
-            case .create: return "create"
-            case .edit(let task): return task.id.uuidString
-        }
-    }
-}
 struct ToDoTask: Identifiable, Sendable {
     let id: UUID
     let title: String
@@ -36,10 +25,11 @@ struct ToDoTask: Identifiable, Sendable {
 
 struct TaskListView: View {
     @ObservedObject private var presenter: TaskListPresenter
-    @State private var editorRoute: EditorRoute?
+    @ObservedObject private var router: TaskListRouter
     
-    init(presenter: TaskListPresenter) {
+    init(presenter: TaskListPresenter, router: TaskListRouter) {
         self.presenter = presenter
+        self.router = router
     }
     
     var body: some View {
@@ -54,7 +44,7 @@ struct TaskListView: View {
                         allowsFullSwipe: false
                     ) {
                         Button {
-                            editorRoute = .edit(task)
+                            presenter.editButtonTapped(task)
                         } label: {
                             Label(
                                 "Редактировать",
@@ -72,7 +62,9 @@ struct TaskListView: View {
                 }
             }
             .overlay {
-                if presenter.filteredTasks.isEmpty {
+                if presenter.isLoading {
+                    ProgressView("Загрузка...")
+                } else if presenter.filteredTasks.isEmpty {
                     if presenter.searchText.isEmpty {
                         ContentUnavailableView {
                             Label(
@@ -112,14 +104,14 @@ struct TaskListView: View {
                     Spacer()
                     
                     Button {
-                        editorRoute = .create
+                        presenter.addButtonTapped()
                     } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .accessibilityLabel("Добавить задачу")
                 }
             }
-            .sheet(item: $editorRoute) { route in
+            .sheet(item: $router.presentedRoute) { route in
                 switch route {
                     case .create:
                         TaskEditorView(
@@ -145,14 +137,22 @@ struct TaskListView: View {
             .task {
                 await presenter.loadTasks()
             }
+            .alert(item: $presenter.presentedError) { alert in
+                Alert(
+                    title: Text("Ошибка"),
+                    message: Text(alert.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
     }
     
     #Preview {
         let repository = CoreDataTaskRepository(stack: .shared)
         let interactor = TaskListInteractor(repository: repository)
-        let presenter = TaskListPresenter(interactor: interactor)
+        let router = TaskListRouter()
+        let presenter = TaskListPresenter(interactor: interactor, router: router)
         
-        TaskListView(presenter: presenter)
+        TaskListView(presenter: presenter, router: router)
     }
 }

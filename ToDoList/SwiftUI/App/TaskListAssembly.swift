@@ -21,12 +21,16 @@ final class TaskListAssembly {
             repository: container.taskRepository
         )
         
+        let router = TaskListRouter()
+        
         let presenter = TaskListPresenter(
-            interactor: interactor
+            interactor: interactor,
+            router: router
         )
         
         return RootView(
-            presenter: presenter
+            presenter: presenter,
+            router: router
         )
     }
 }
