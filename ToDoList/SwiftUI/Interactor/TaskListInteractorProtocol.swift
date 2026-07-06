@@ -1,15 +1,15 @@
 //
-//  TaskRepositoryProtocol.swift
+//  TaskListInteractorProtocol.swift
 //  ToDoList
 //
 //  Created by Alice Kamyshenko on 04.07.2026.
 //
 
-import CoreData
+import Foundation
 
-protocol TaskRepositoryProtocol {
+protocol TaskListInteractorProtocol {
     func fetchTasks(
-        matching query: String?
+        matching query: String?,
     ) async throws -> [ToDoTask]
     
     func createTask(title: String) async throws

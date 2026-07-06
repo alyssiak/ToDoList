@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 final class TaskListAssembly {
     private let container: AppContainer
     
@@ -14,14 +15,17 @@ final class TaskListAssembly {
         self.container = container
     }
     
-    func makeView() -> TaskListView {
-        let interactor = ToDoListInteractor()
+    @MainActor
+    func makeView() -> RootView {
+        let interactor = TaskListInteractor(
+            repository: container.taskRepository
+        )
         
         let presenter = TaskListPresenter(
             interactor: interactor
         )
         
-        return TaskListView(
+        return RootView(
             presenter: presenter
         )
     }

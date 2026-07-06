@@ -8,16 +8,13 @@
 import Foundation
 import Combine
 
+@MainActor
 final class TaskListPresenter: ObservableObject {
-    @Published private(set) var tasks  = [
-        ToDoTask(title: "Изучить основы SwiftUI", isCompleted: false),
-        ToDoTask(title: "Обновить README", isCompleted: true),
-        ToDoTask(title: "Сделать иконку", isCompleted: false)
-    ]
     
+    @Published private(set) var tasks: [ToDoTask] = []
     @Published var searchText = ""
     
-    private let interactor: ToDoListInteractorInput
+    private let interactor: TaskListInteractorProtocol
     
     var filteredTasks: [ToDoTask] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -50,50 +47,74 @@ final class TaskListPresenter: ObservableObject {
         return "\(count) \(word)"
     }
     
-    init(interactor: ToDoListInteractorInput) {
+    init(interactor: TaskListInteractorProtocol) {
         self.interactor = interactor
     }
     
+    func loadTasks() async {
+        await reloadTasks()
+    }
+    
     func toggleTask(_ task: ToDoTask) {
-        guard let index = tasks.firstIndex(
-            where: { $0.id == task.id }
-        ) else {
-            return
+        Task {
+            do {
+                try await interactor.toggleTask(id: task.id)
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
         }
-        
-        tasks[index].isCompleted.toggle()
     }
     
     func deleteTasks(at offsets: IndexSet, from displayedTasks: [ToDoTask]) {
-        let idsToDelete = offsets.map { index in
+        let ids = offsets.map { index in
             displayedTasks[index].id
         }
         
-        tasks.removeAll { task in
-            idsToDelete.contains(task.id)
+        Task {
+            do {
+                for id in ids {
+                    try await interactor.deleteTask(id: id)
+                }
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
         }
     }
     
     func addTask(title: String) {
-        let task = ToDoTask(
-            title: title,
-            isCompleted: false
-        )
-        
-        tasks.insert(task, at: 0)
+        Task {
+            do {
+                try await interactor.createTask(title: title)
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
+        }
     }
     
     func updateTask(id: UUID, title: String) {
-        guard let index = tasks.firstIndex(
-            where: { $0.id == id }
-        ) else {
-            return
+       Task {
+            do {
+                try await interactor.updateTask(id: id, title: title)
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
         }
-        
-        tasks[index] = ToDoTask(
-            id: id,
-            title: title,
-            isCompleted: tasks[index].isCompleted
-        )
+    }
+    
+    private func reloadTasks() async {
+        do {
+            tasks = try await interactor.fetchTasks(
+                matching: nil
+            )
+        } catch {
+            handle(error)
+        }
+    }
+    private func handle(_ error: Error) {
+        print("Task error:", error.localizedDescription)
     }
 }

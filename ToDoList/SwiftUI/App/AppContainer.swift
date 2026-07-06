@@ -11,15 +11,18 @@ final class AppContainer {
     let coreDataStack: CoreDataStack
     let urlSession: URLSession
     let userDefaults: UserDefaults
+    let taskRepository: TaskRepositoryProtocol
     
     init(
         coreDataStack: CoreDataStack = .shared,
         urlSession: URLSession = .shared,
-        userDefaults: UserDefaults = .standard
+        userDefaults: UserDefaults = .standard,
+        taskRepository: TaskRepositoryProtocol? = nil
     ) {
         self.coreDataStack = coreDataStack
         self.urlSession = urlSession
         self.userDefaults = userDefaults
+        self.taskRepository = taskRepository ?? CoreDataTaskRepository(stack: coreDataStack)
     }
     
     

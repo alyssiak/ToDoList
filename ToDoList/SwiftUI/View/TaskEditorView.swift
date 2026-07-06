@@ -21,7 +21,7 @@ struct TaskEditorView: View {
         saveButtonTitle: String,
         onSave: @escaping (String) -> Void
     ) {
-        _title = State(initialValue: initialTitle)
+        _title = .init(initialValue: initialTitle)
         self.navigationTitle = navigationTitle
         self.saveButtonTitle = saveButtonTitle
         self.onSave = onSave

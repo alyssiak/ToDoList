@@ -35,11 +35,11 @@ struct ToDoTask: Identifiable, Sendable {
 }
 
 struct TaskListView: View {
-    @StateObject private var presenter: TaskListPresenter
+    @ObservedObject private var presenter: TaskListPresenter
     @State private var editorRoute: EditorRoute?
     
     init(presenter: TaskListPresenter) {
-        _presenter = StateObject(wrappedValue: presenter)
+        self.presenter = presenter
     }
     
     var body: some View {
@@ -142,14 +142,16 @@ struct TaskListView: View {
                         }
                 }
             }
+            .task {
+                await presenter.loadTasks()
+            }
         }
     }
     
     #Preview {
-        let interactor = ToDoListInteractor()
-        let presenter = TaskListPresenter(
-            interactor: interactor
-        )
+        let repository = CoreDataTaskRepository(stack: .shared)
+        let interactor = TaskListInteractor(repository: repository)
+        let presenter = TaskListPresenter(interactor: interactor)
         
         TaskListView(presenter: presenter)
     }

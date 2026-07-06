@@ -70,6 +70,19 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
         }
     }
 
+    func updateTask(id: UUID, title: String) async throws {
+        let context = stack.backgroundContext()
+        
+        try await context.perform {
+            let item = try self.fetchItem(
+                id: id,
+                in: context
+            )
+            
+            item.title = title
+            try context.save()
+        }
+    }
     func toggleTask(id: UUID) async throws {
         let context = stack.backgroundContext()
 

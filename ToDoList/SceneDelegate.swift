@@ -14,32 +14,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        let navAppearance = UINavigationBarAppearance()
-        navAppearance.configureWithOpaqueBackground()
-        navAppearance.backgroundColor = .black
-        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-
-        UINavigationBar.appearance().standardAppearance = navAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-        UINavigationBar.appearance().compactAppearance = navAppearance
-        UINavigationBar.appearance().tintColor = .systemYellow
-        
-        // Собираем модуль списка (VIPER)
-//        let listVC = ToDoListViewController()
-//        let presenter = ToDoListPresenter()
-//        let interactor = ToDoListInteractor()
-//        let router = ToDoListRouter()
-//
-//        listVC.output = presenter
-//        presenter.view = listVC
-//        presenter.interactor = interactor
-//        presenter.router = router
-//        presenter.fromVC = listVC
-//        interactor.output = presenter
-//
-//        let nav = UINavigationController(rootViewController: listVC)
-//        nav.navigationBar.prefersLargeTitles = true
         let container = AppContainer()
         let assembly = TaskListAssembly(
             container: container
@@ -53,7 +27,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         
         window.tintColor = .systemYellow
-        window.overrideUserInterfaceStyle = .dark
         self.window = window
         
     }
