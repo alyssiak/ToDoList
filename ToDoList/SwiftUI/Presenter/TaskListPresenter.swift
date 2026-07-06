@@ -32,7 +32,7 @@ final class TaskListPresenter: ObservableObject {
         }
         
         return tasks.filter { task in
-            task.title.localizedCaseInsensitiveContains(query)
+            task.title.localizedCaseInsensitiveContains(query) || task.details?.localizedCaseInsensitiveContains(query) == true
         }
     }
     
@@ -95,10 +95,10 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func addTask(title: String) {
+    func addTask(title: String, details: String?) {
         Task {
             do {
-                try await interactor.createTask(title: title)
+                try await interactor.createTask(title: title, details: details)
                 await reloadTasks()
             } catch {
                 handle(error)
@@ -106,10 +106,10 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func updateTask(id: UUID, title: String) {
+    func updateTask(id: UUID, title: String, details: String?) {
        Task {
             do {
-                try await interactor.updateTask(id: id, title: title)
+                try await interactor.updateTask(id: id, title: title, details: details)
                 await reloadTasks()
             } catch {
                 handle(error)

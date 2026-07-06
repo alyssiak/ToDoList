@@ -18,17 +18,19 @@ final class TaskListInteractor: TaskListInteractorProtocol {
         try await repository.fetchTasks(matching: query)
     }
     
-    func createTask(title: String) async throws {
-        try await repository.createTask(title: title)
+    func createTask(title: String, details: String?) async throws {
+        try await repository.createTask(title: title, details: details)
     }
 
     func updateTask(
         id: UUID,
-        title: String
+        title: String,
+        details: String?
     ) async throws {
         try await repository.updateTask(
             id: id,
-            title: title
+            title: title,
+            details: details
         )
     }
 

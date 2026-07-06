@@ -7,22 +7,6 @@
 
 import SwiftUI
 
-struct ToDoTask: Identifiable, Sendable {
-    let id: UUID
-    let title: String
-    var isCompleted: Bool
-
-    init(
-       id: UUID = UUID(),
-       title: String,
-       isCompleted: Bool
-    ) {
-       self.id = id
-       self.title = title
-       self.isCompleted = isCompleted
-    }
-}
-
 struct TaskListView: View {
     @ObservedObject private var presenter: TaskListPresenter
     @ObservedObject private var router: TaskListRouter
@@ -117,19 +101,21 @@ struct TaskListView: View {
                         TaskEditorView(
                             navigationTitle: "Новая задача",
                             saveButtonTitle: "Добавить"
-                        ) { title in
-                            presenter.addTask(title: title)
+                        ) { title, details in
+                            presenter.addTask(title: title, details: details)
                         }
                         
                     case .edit(let task):
                         TaskEditorView(
                             initialTitle: task.title,
+                            initialDetails: task.details,
                             navigationTitle: "Редактирование",
                             saveButtonTitle: "Сохранить"
-                        ) { title in
+                        ) { title, details in
                             presenter.updateTask(
                                 id: task.id,
-                                title: title
+                                title: title,
+                                details: details
                             )
                         }
                 }

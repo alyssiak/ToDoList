@@ -12,7 +12,7 @@ struct TaskRowView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Button(action: onToggle) {
                 Image(
                     systemName: task.isCompleted
@@ -21,10 +21,21 @@ struct TaskRowView: View {
                 )
                 .foregroundColor(.yellow)
             }.buttonStyle(.plain)
-            
+        VStack(alignment: .leading, spacing: 4) {
             Text(task.title)
                 .strikethrough(task.isCompleted)
-                .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                .foregroundStyle(
+                    task.isCompleted ? .secondary : .primary
+                )
+
+            if let details = task.details,
+               !details.isEmpty {
+                Text(details)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+         }
         }
     }
 }

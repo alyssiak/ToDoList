@@ -10,18 +10,21 @@ import SwiftUI
 struct TaskEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
+    @State private var details: String
     
     let navigationTitle: String
     let saveButtonTitle: String
-    let onSave: (String) -> Void
+    let onSave: (String, String?) -> Void
     
     init(
         initialTitle: String = "",
+        initialDetails: String? = nil,
         navigationTitle: String,
         saveButtonTitle: String,
-        onSave: @escaping (String) -> Void
+        onSave: @escaping (String, String?) -> Void
     ) {
-        _title = .init(initialValue: initialTitle)
+        _title = State(initialValue: initialTitle)
+        _details = State(initialValue: initialDetails ?? "")
         self.navigationTitle = navigationTitle
         self.saveButtonTitle = saveButtonTitle
         self.onSave = onSave
@@ -31,9 +34,19 @@ struct TaskEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Название задачи", text: $title)
+                Section("Title") {
+                    TextField(
+                        "Task title",
+                        text: $title
+                    )
+                }
+                
+                Section("Description") {
+                    TextEditor(text: $details)
+                        .frame(minHeight: 120)
+                }
             }
-            .navigationTitle("Задача")
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -44,9 +57,18 @@ struct TaskEditorView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(saveButtonTitle) {
-                        onSave(title)
+                        let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let cleanDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
+                        
+                        onSave(
+                            cleanTitle,
+                            cleanDetails.isEmpty ? nil : cleanDetails
+                        )
+                        
                         dismiss()
                     }
+                    
+                    
                     .disabled(
                         title.trimmingCharacters(
                             in: .whitespaces
@@ -62,7 +84,7 @@ struct TaskEditorView: View {
         initialTitle: "Изучить SwiftUI",
         navigationTitle: "Редактирование",
         saveButtonTitle: "Сохранить"
-    ) { title in
-        print(title)
+    ) { title, details in
+        print(title, details ?? "")
     }
 }
