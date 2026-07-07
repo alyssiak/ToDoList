@@ -21,6 +21,7 @@ extension TaskItem {
     @NSManaged public var createdAt: Date?
     @NSManaged public var reminderDate: Date?
     @NSManaged public var isCompleted: Bool
+    @NSManaged public var isImportant: Bool
     @NSManaged public var id: UUID?
 
 }

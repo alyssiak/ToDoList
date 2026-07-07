@@ -12,6 +12,7 @@ struct ToDoTask: Identifiable, Sendable {
     let title: String
     let details: String?
     var isCompleted: Bool
+    var isImportant: Bool
     let createdAt: Date?
     let reminderDate: Date?
     
@@ -20,6 +21,7 @@ struct ToDoTask: Identifiable, Sendable {
         title: String,
         details: String? = nil,
         isCompleted: Bool,
+        isImportant: Bool = false,
         createdAt: Date? = Date(),
         reminderDate: Date? = nil
     ) {
@@ -27,6 +29,7 @@ struct ToDoTask: Identifiable, Sendable {
         self.title = title
         self.details = details
         self.isCompleted = isCompleted
+        self.isImportant = isImportant
         self.createdAt = createdAt
         self.reminderDate = reminderDate
     }

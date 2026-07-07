@@ -52,35 +52,96 @@ struct TaskListView: View {
 private extension TaskListView {
     var taskList: some View {
         List {
-            ForEach(presenter.filteredTasks) { task in
-                TaskRowView(task: task) {
-                    presenter.toggleTask(task)
-                }
-                .swipeActions(
-                    edge: .leading,
-                    allowsFullSwipe: false
-                ) {
-                    Button {
-                        presenter.editButtonTapped(task)
-                    } label: {
-                        Label(
-                            "edit_task",
-                            systemImage: "pencil"
+            if !importantTasks.isEmpty {
+                Section("important_section") {
+                    ForEach(importantTasks) { task in
+                        taskRow(for: task)
+                    }
+                    .onDelete { offsets in
+                        presenter.deleteTasks(
+                            at: offsets,
+                            from: importantTasks
                         )
                     }
-                    .tint(.blue)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    presenter.editButtonTapped(task)
                 }
             }
-            .onDelete { offsets in
-                presenter.deleteTasks(
-                    at: offsets,
-                    from: presenter.filteredTasks
+
+            if !activeTasks.isEmpty {
+                Section("active_section") {
+                    ForEach(activeTasks) { task in
+                        taskRow(for: task)
+                    }
+                    .onDelete { offsets in
+                        presenter.deleteTasks(
+                            at: offsets,
+                            from: activeTasks
+                        )
+                    }
+                }
+            }
+
+            if !completedTasks.isEmpty {
+                Section("completed_section") {
+                    ForEach(completedTasks) { task in
+                        taskRow(for: task)
+                    }
+                    .onDelete { offsets in
+                        presenter.deleteTasks(
+                            at: offsets,
+                            from: completedTasks
+                        )
+                    }
+                }
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: presenter.filteredTasks.count)
+    }
+
+    var importantTasks: [ToDoTask] {
+        presenter.filteredTasks.filter { task in
+            task.isImportant && !task.isCompleted
+        }
+    }
+
+    var activeTasks: [ToDoTask] {
+        presenter.filteredTasks.filter { task in
+            !task.isImportant && !task.isCompleted
+        }
+    }
+
+    var completedTasks: [ToDoTask] {
+        presenter.filteredTasks.filter { task in
+            task.isCompleted
+        }
+    }
+
+    func taskRow(for task: ToDoTask) -> some View {
+        TaskRowView(
+            task: task,
+            onToggle: {
+                presenter.toggleTask(task)
+            },
+            onToggleImportant: {
+                presenter.toggleImportant(task)
+            }
+        )
+        .swipeActions(
+            edge: .leading,
+            allowsFullSwipe: false
+        ) {
+            Button {
+                presenter.editButtonTapped(task)
+            } label: {
+                Label(
+                    "edit_task",
+                    systemImage: "pencil"
                 )
             }
+            .tint(.blue)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            presenter.editButtonTapped(task)
         }
     }
 
@@ -198,11 +259,12 @@ private extension TaskListView {
             TaskEditorView(
                 navigationTitle: "new_task_title",
                 saveButtonTitle: "add_button"
-            ) { title, details, reminderDate in
+            ) { title, details, reminderDate, isImportant in
                 presenter.addTask(
                     title: title,
                     details: details,
-                    reminderDate: reminderDate
+                    reminderDate: reminderDate,
+                    isImportant: isImportant
                 )
             }
 
@@ -211,14 +273,16 @@ private extension TaskListView {
                 initialTitle: task.title,
                 initialDetails: task.details,
                 initialReminderDate: task.reminderDate,
+                initialIsImportant: task.isImportant,
                 navigationTitle: "edit_task_title",
                 saveButtonTitle: "save_button"
-            ) { title, details, reminderDate in
+            ) { title, details, reminderDate, isImportant in
                 presenter.updateTask(
                     id: task.id,
                     title: title,
                     details: details,
-                    reminderDate: reminderDate
+                    reminderDate: reminderDate,
+                    isImportant: isImportant
                 )
             }
         }

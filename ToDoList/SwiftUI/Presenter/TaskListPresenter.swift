@@ -75,10 +75,26 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func addTask(title: String, details: String?, reminderDate: Date?) {
+    func toggleImportant(_ task: ToDoTask) {
         Task {
             do {
-                try await interactor.createTask(title: title, details: details, reminderDate: reminderDate)
+                try await interactor.toggleImportant(id: task.id)
+                await reloadTasks()
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
+    func addTask(title: String, details: String?, reminderDate: Date?, isImportant: Bool) {
+        Task {
+            do {
+                try await interactor.createTask(
+                    title: title,
+                    details: details,
+                    reminderDate: reminderDate,
+                    isImportant: isImportant
+                )
                 await reloadTasks()
             } catch {
                 handle(error)
@@ -86,10 +102,16 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func updateTask(id: UUID, title: String, details: String?, reminderDate: Date?) {
+    func updateTask(id: UUID, title: String, details: String?, reminderDate: Date?, isImportant: Bool) {
        Task {
             do {
-                try await interactor.updateTask(id: id, title: title, details: details, reminderDate: reminderDate)
+                try await interactor.updateTask(
+                    id: id,
+                    title: title,
+                    details: details,
+                    reminderDate: reminderDate,
+                    isImportant: isImportant
+                )
                 await reloadTasks()
             } catch {
                 handle(error)

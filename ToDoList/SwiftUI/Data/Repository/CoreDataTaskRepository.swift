@@ -38,8 +38,10 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
             }
 
             let items = try context.fetch(request)
+            let now = Date()
+            var hasExpiredReminders = false
 
-            return items.compactMap { item in
+            let tasks = items.compactMap { item -> ToDoTask? in
                 guard
                     let id = item.id,
                     let title = item.title
@@ -47,19 +49,37 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
                     return nil
                 }
 
+                if let reminderDate = item.reminderDate,
+                   reminderDate <= now {
+                    item.reminderDate = nil
+                    hasExpiredReminders = true
+                }
+
                 return ToDoTask(
                     id: id,
                     title: title,
                     details: item.desc,
                     isCompleted: item.isCompleted,
+                    isImportant: item.isImportant,
                     createdAt: item.createdAt,
                     reminderDate: item.reminderDate
                 )
             }
+
+            if hasExpiredReminders {
+                try context.save()
+            }
+
+            return tasks
         }
     }
 
-    func createTask(title: String, details: String?, reminderDate: Date?) async throws -> ToDoTask {
+    func createTask(
+        title: String,
+        details: String?,
+        reminderDate: Date?,
+        isImportant: Bool
+    ) async throws -> ToDoTask {
         let context = stack.backgroundContext()
 
         return try await context.perform {
@@ -72,6 +92,7 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
             item.desc = details
             item.createdAt = createdAt
             item.isCompleted = false
+            item.isImportant = isImportant
             item.reminderDate = reminderDate
 
             try context.save()
@@ -81,13 +102,20 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
                 title: title,
                 details: details,
                 isCompleted: false,
+                isImportant: isImportant,
                 createdAt: createdAt,
                 reminderDate: reminderDate
             )
         }
     }
 
-    func updateTask(id: UUID, title: String, details: String?, reminderDate: Date?) async throws {
+    func updateTask(
+        id: UUID,
+        title: String,
+        details: String?,
+        reminderDate: Date?,
+        isImportant: Bool
+    ) async throws {
         let context = stack.backgroundContext()
         
         try await context.perform {
@@ -99,6 +127,7 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
             item.title = title
             item.desc = details
             item.reminderDate = reminderDate
+            item.isImportant = isImportant
             try context.save()
         }
     }
@@ -112,6 +141,25 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
             )
 
             item.isCompleted.toggle()
+
+            if item.isCompleted {
+                item.reminderDate = nil
+            }
+
+            try context.save()
+        }
+    }
+
+    func toggleImportant(id: UUID) async throws {
+        let context = stack.backgroundContext()
+
+        try await context.perform {
+            let item = try self.fetchItem(
+                id: id,
+                in: context
+            )
+
+            item.isImportant.toggle()
             try context.save()
         }
     }
@@ -142,6 +190,7 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
                 item.title = task.title
                 item.createdAt = creationDate
                 item.isCompleted = task.isCompleted
+                item.isImportant = false
             }
 
             try context.save()

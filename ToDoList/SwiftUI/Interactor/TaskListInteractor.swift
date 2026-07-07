@@ -31,11 +31,17 @@ final class TaskListInteractor: TaskListInteractorProtocol {
         try await repository.fetchTasks(matching: query)
     }
     
-    func createTask(title: String, details: String?, reminderDate: Date?) async throws {
+    func createTask(
+        title: String,
+        details: String?,
+        reminderDate: Date?,
+        isImportant: Bool
+    ) async throws {
         let task = try await repository.createTask(
             title: title,
             details: details,
-            reminderDate: reminderDate
+            reminderDate: reminderDate,
+            isImportant: isImportant
         )
 
         if let reminderDate {
@@ -51,13 +57,15 @@ final class TaskListInteractor: TaskListInteractorProtocol {
         id: UUID,
         title: String,
         details: String?,
-        reminderDate: Date?
+        reminderDate: Date?,
+        isImportant: Bool
     ) async throws {
         try await repository.updateTask(
             id: id,
             title: title,
             details: details,
-            reminderDate: reminderDate
+            reminderDate: reminderDate,
+            isImportant: isImportant
         )
 
         reminderService.cancel(taskID: id)
@@ -76,6 +84,10 @@ final class TaskListInteractor: TaskListInteractorProtocol {
         if !task.isCompleted {
             reminderService.cancel(taskID: task.id)
         }
+    }
+
+    func toggleImportant(id: UUID) async throws {
+        try await repository.toggleImportant(id: id)
     }
 
     func deleteTask(id: UUID) async throws {

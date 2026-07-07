@@ -13,23 +13,26 @@ struct TaskEditorView: View {
     @State private var details: String
     @State private var hasReminder: Bool
     @State private var reminderDate: Date
+    @State private var isImportant: Bool
     
     let navigationTitle: LocalizedStringKey
     let saveButtonTitle: LocalizedStringKey
-    let onSave: (String, String?, Date?) -> Void
+    let onSave: (String, String?, Date?, Bool) -> Void
     
     init(
         initialTitle: String = "",
         initialDetails: String? = nil,
         initialReminderDate: Date? = nil,
+        initialIsImportant: Bool = false,
         navigationTitle: LocalizedStringKey,
         saveButtonTitle: LocalizedStringKey,
-        onSave: @escaping (String, String?, Date?) -> Void
+        onSave: @escaping (String, String?, Date?, Bool) -> Void
     ) {
         _title = State(initialValue: initialTitle)
         _details = State(initialValue: initialDetails ?? "")
         _hasReminder = State(initialValue: initialReminderDate != nil)
         _reminderDate = State(initialValue: initialReminderDate ?? Date().addingTimeInterval(3600))
+        _isImportant = State(initialValue: initialIsImportant)
         
         self.navigationTitle = navigationTitle
         self.saveButtonTitle = saveButtonTitle
@@ -51,6 +54,13 @@ struct TaskEditorView: View {
                     TextEditor(text: $details)
                         .frame(minHeight: 120)
                 }
+
+                Section("editor_priority_section") {
+                    Toggle(
+                        "editor_mark_important",
+                        isOn: $isImportant
+                    )
+                }
                 
                 Section("editor_reminder_section") {
                     Toggle(
@@ -70,6 +80,7 @@ struct TaskEditorView: View {
                         )
                     }
                 }
+                .animation(.easeInOut(duration: 0.2), value: hasReminder)
             }
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -88,7 +99,8 @@ struct TaskEditorView: View {
                         onSave(
                             cleanTitle,
                             cleanDetails.isEmpty ? nil : cleanDetails,
-                            hasReminder ? reminderDate : nil
+                            hasReminder ? reminderDate : nil,
+                            isImportant
                         )
                         
                         dismiss()
@@ -110,7 +122,7 @@ struct TaskEditorView: View {
         initialTitle: "Изучить SwiftUI",
         navigationTitle: "Редактирование",
         saveButtonTitle: "Сохранить"
-    ) { title, details, reminderDate in
-        print(title, details ?? "", reminderDate as Any)
+    ) { title, details, reminderDate, isImportant in
+        print(title, details ?? "", reminderDate as Any, isImportant)
     }
 }

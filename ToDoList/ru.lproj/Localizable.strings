@@ -22,6 +22,8 @@
 "editor_title_placeholder" = "Название задачи";
 "editor_description_section" = "Описание";
 "editor_reminder_section" = "Напоминание";
+"editor_priority_section" = "Приоритет";
+"editor_mark_important" = "Отметить как важную";
 "editor_enable_reminder" = "Включить напоминание";
 "editor_date_time" = "Дата и время";
 "cancel_button" = "Отмена";
@@ -36,3 +38,6 @@
 "reminder_error_permission_denied" = "Разрешение на уведомления выключено.";
 "import_error_already_imported" = "Примеры задач уже были импортированы.";
 "repository_error_task_not_found" = "Задача не найдена.";
+"important_section" = "Важные";
+"active_section" = "Задачи";
+"completed_section" = "Выполненные";
