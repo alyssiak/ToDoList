@@ -176,7 +176,10 @@ enum TaskRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .taskNotFound:
-            return "Задача не найдена"
+            return NSLocalizedString(
+                "repository_error_task_not_found",
+                comment: "Error shown when a task cannot be found"
+            )
         }
     }
 }

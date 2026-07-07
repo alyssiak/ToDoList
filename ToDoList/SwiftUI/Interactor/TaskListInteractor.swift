@@ -98,6 +98,9 @@ enum TaskImportError: LocalizedError {
     case alreadyImported
 
     var errorDescription: String? {
-        "Sample tasks have already been imported."
+        NSLocalizedString(
+            "import_error_already_imported",
+            comment: "Error shown when sample tasks were already imported"
+        )
     }
 }

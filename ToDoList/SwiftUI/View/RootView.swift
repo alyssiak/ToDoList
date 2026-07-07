@@ -44,5 +44,6 @@ struct RootView: View {
         }
         .preferredColorScheme(settings.theme.colorScheme)
         .environmentObject(settings)
+        .environment(\.locale, settings.language.locale)
     }
 }

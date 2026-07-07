@@ -14,16 +14,16 @@ struct TaskEditorView: View {
     @State private var hasReminder: Bool
     @State private var reminderDate: Date
     
-    let navigationTitle: String
-    let saveButtonTitle: String
+    let navigationTitle: LocalizedStringKey
+    let saveButtonTitle: LocalizedStringKey
     let onSave: (String, String?, Date?) -> Void
     
     init(
         initialTitle: String = "",
         initialDetails: String? = nil,
         initialReminderDate: Date? = nil,
-        navigationTitle: String,
-        saveButtonTitle: String,
+        navigationTitle: LocalizedStringKey,
+        saveButtonTitle: LocalizedStringKey,
         onSave: @escaping (String, String?, Date?) -> Void
     ) {
         _title = State(initialValue: initialTitle)
@@ -40,27 +40,27 @@ struct TaskEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Title") {
+                Section("editor_title_section") {
                     TextField(
-                        "Task title",
+                        "editor_title_placeholder",
                         text: $title
                     )
                 }
                 
-                Section("Description") {
+                Section("editor_description_section") {
                     TextEditor(text: $details)
                         .frame(minHeight: 120)
                 }
                 
-                Section("Reminder") {
+                Section("editor_reminder_section") {
                     Toggle(
-                        "Enable reminder",
+                        "editor_enable_reminder",
                         isOn: $hasReminder
                     )
                     
                     if hasReminder {
                         DatePicker(
-                            "Date and time",
+                            "editor_date_time",
                             selection: $reminderDate,
                             in: Date()...,
                             displayedComponents: [
@@ -75,7 +75,7 @@ struct TaskEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") {
+                    Button("cancel_button") {
                         dismiss()
                     }
                 }

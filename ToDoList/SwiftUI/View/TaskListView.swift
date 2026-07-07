@@ -23,10 +23,10 @@ struct TaskListView: View {
                 .overlay {
                     emptyOrLoadingState
                 }
-                .navigationTitle("Список задач")
+                .navigationTitle("task_list_title")
                 .searchable(
                     text: $presenter.searchText,
-                    prompt: "Поиск"
+                    prompt: "search_prompt"
                 )
                 .toolbar {
                     topToolbar
@@ -40,9 +40,9 @@ struct TaskListView: View {
                 }
                 .alert(item: $presenter.presentedError) { alert in
                     Alert(
-                        title: Text("Ошибка"),
+                        title: Text("error_title"),
                         message: Text(alert.message),
-                        dismissButton: .default(Text("OK"))
+                        dismissButton: .default(Text("ok_button"))
                     )
                 }
         }
@@ -64,7 +64,7 @@ private extension TaskListView {
                         presenter.editButtonTapped(task)
                     } label: {
                         Label(
-                            "Редактировать",
+                            "edit_task",
                             systemImage: "pencil"
                         )
                     }
@@ -87,25 +87,25 @@ private extension TaskListView {
     @ViewBuilder
     var emptyOrLoadingState: some View {
         if presenter.isLoading {
-            ProgressView("Загрузка...")
+            ProgressView("loading")
         } else if presenter.filteredTasks.isEmpty {
             if presenter.searchText.isEmpty {
                 ContentUnavailableView {
                     Label(
-                        "Нет задач",
+                        "empty_title",
                         systemImage: "checklist"
                     )
                 } description: {
-                    Text("Создай свою первую задачу")
+                    Text("empty_description")
                 }
             } else {
                 ContentUnavailableView {
                     Label(
-                        "Ничего не найдено",
+                        "nothing_found_title",
                         systemImage: "magnifyingglass"
                     )
                 } description: {
-                    Text("Попробуй изменить поисковый запрос")
+                    Text("nothing_found_description")
                 }
             }
         }
@@ -114,12 +114,29 @@ private extension TaskListView {
     var topToolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Section("Actions") {
+                Section("language_section") {
+                    ForEach(AppLanguage.allCases) { language in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                settings.language = language
+                            }
+                        } label: {
+                            Label(
+                                language.titleKey,
+                                systemImage: settings.language == language
+                                ? "checkmark.circle.fill"
+                                : language.iconName
+                            )
+                        }
+                    }
+                }
+
+                Section("actions_section") {
                     Button {
                         presenter.importSampleTasks()
                     } label: {
                         Label(
-                            "Import sample tasks",
+                            "import_sample_tasks",
                             systemImage: "square.and.arrow.down"
                         )
                     }
@@ -127,7 +144,7 @@ private extension TaskListView {
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
-            .accessibilityLabel("More actions")
+            .accessibilityLabel("more_actions")
         }
     }
 
@@ -137,7 +154,7 @@ private extension TaskListView {
 
             Spacer()
 
-            Text(presenter.taskCountText)
+            Text(settings.language.taskCountText(for: presenter.tasks.count))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -148,7 +165,7 @@ private extension TaskListView {
             } label: {
                 Image(systemName: "square.and.pencil")
             }
-            .accessibilityLabel("Добавить задачу")
+            .accessibilityLabel("add_task_accessibility")
         }
     }
 
@@ -161,7 +178,7 @@ private extension TaskListView {
                     }
                 } label: {
                     Label(
-                        theme.title,
+                        theme.titleKey,
                         systemImage: settings.theme == theme
                         ? "checkmark.circle.fill"
                         : theme.iconName
@@ -171,7 +188,7 @@ private extension TaskListView {
         } label: {
             Image(systemName: "circle.lefthalf.filled")
         }
-        .accessibilityLabel("Change theme")
+        .accessibilityLabel("change_theme")
     }
 
     @ViewBuilder
@@ -179,8 +196,8 @@ private extension TaskListView {
         switch route {
         case .create:
             TaskEditorView(
-                navigationTitle: "Новая задача",
-                saveButtonTitle: "Добавить"
+                navigationTitle: "new_task_title",
+                saveButtonTitle: "add_button"
             ) { title, details, reminderDate in
                 presenter.addTask(
                     title: title,
@@ -194,8 +211,8 @@ private extension TaskListView {
                 initialTitle: task.title,
                 initialDetails: task.details,
                 initialReminderDate: task.reminderDate,
-                navigationTitle: "Редактирование",
-                saveButtonTitle: "Сохранить"
+                navigationTitle: "edit_task_title",
+                saveButtonTitle: "save_button"
             ) { title, details, reminderDate in
                 presenter.updateTask(
                     id: task.id,

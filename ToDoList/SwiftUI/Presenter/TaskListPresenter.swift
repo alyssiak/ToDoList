@@ -36,26 +36,6 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    var taskCountText: String {
-        let count = tasks.count
-        let remainder100 = count % 100
-        let remainder10 = count % 10
-        
-        let word: String
-        
-        if remainder100 >= 11 && remainder100 <= 14 {
-            word = "задач"
-        } else {
-            switch remainder10 {
-                case 1: word = "задача"
-                case 2...4: word = "задачи"
-                default: word = "задач"
-            }
-        }
-        
-        return "\(count) \(word)"
-    }
-    
     //MARK: - Init
     init(interactor: TaskListInteractorProtocol, router: TaskListRouterProtocol) {
         self.interactor = interactor

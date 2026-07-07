@@ -9,6 +9,7 @@ import SwiftUI
 
 final class AppSettings: ObservableObject {
     @AppStorage("appTheme") private var storedTheme: String = AppTheme.system.rawValue
+    @AppStorage("appLanguage") private var storedLanguage: String = AppLanguage.system.rawValue
     
     var theme: AppTheme {
         get {
@@ -16,6 +17,16 @@ final class AppSettings: ObservableObject {
         }
         set {
             storedTheme = newValue.rawValue
+            objectWillChange.send()
+        }
+    }
+    
+    var language: AppLanguage {
+        get {
+            AppLanguage(rawValue: storedLanguage) ?? .system
+        }
+        set {
+            storedLanguage = newValue.rawValue
             objectWillChange.send()
         }
     }

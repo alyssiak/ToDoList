@@ -27,7 +27,10 @@ final class LocalReminderService: ReminderServiceProtocol {
         }
         
         let content = UNMutableNotificationContent()
-        content.title = "Task reminder"
+        content.title = NSLocalizedString(
+            "notification_task_reminder_title",
+            comment: "Local notification title for task reminders"
+        )
         content.body = title
         content.sound = .default
         
@@ -71,10 +74,16 @@ enum ReminderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .dateIsInPast:
-            return "Choose a future reminder date."
+            return NSLocalizedString(
+                "reminder_error_past_date",
+                comment: "Error shown when reminder date is in the past"
+            )
 
         case .permissionDenied:
-            return "Notification permission is disabled."
+            return NSLocalizedString(
+                "reminder_error_permission_denied",
+                comment: "Error shown when notification permission is disabled"
+            )
         }
     }
 }

@@ -16,11 +16,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         rawValue
     }
     
-    var title: String {
+    var titleKey: LocalizedStringKey {
         switch self {
-            case .system: return "System"
-            case .light: return "Light"
-            case .dark: return "Dark"
+            case .system: return "theme_system"
+            case .light: return "theme_light"
+            case .dark: return "theme_dark"
         }
     }
     
