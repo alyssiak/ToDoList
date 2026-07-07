@@ -10,7 +10,7 @@ import SwiftUI
 struct RootView: View {
     @StateObject private var presenter: TaskListPresenter
     @StateObject private var router: TaskListRouter
-    
+    @StateObject private var settings = AppSettings()
     @State private var isShowingContent = false
     
     init(presenter: TaskListPresenter, router: TaskListRouter) {
@@ -42,5 +42,7 @@ struct RootView: View {
                 isShowingContent = true
             }
         }
+        .preferredColorScheme(settings.theme.colorScheme)
+        .environmentObject(settings)
     }
 }

@@ -20,7 +20,8 @@ final class TaskListAssembly {
         let interactor = TaskListInteractor(
             repository: container.taskRepository,
             apiClient: container.taskAPIClient,
-            userDefaults: container.userDefaults
+            userDefaults: container.userDefaults,
+            reminderService: container.reminderService
         )
         
         let router = TaskListRouter()
