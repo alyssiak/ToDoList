@@ -12,11 +12,22 @@ struct ToDoTask: Identifiable, Sendable {
     let title: String
     let details: String?
     var isCompleted: Bool
+    let createdAt: Date?
+    let reminderDate: Date?
     
-    init(id: UUID = UUID(), title: String, details: String? = nil, isCompleted: Bool) {
+    init(
+        id: UUID = UUID(),
+        title: String,
+        details: String? = nil,
+        isCompleted: Bool,
+        createdAt: Date? = Date(),
+        reminderDate: Date? = nil
+    ) {
         self.id = id
         self.title = title
         self.details = details
         self.isCompleted = isCompleted
+        self.createdAt = createdAt
+        self.reminderDate = reminderDate
     }
 }

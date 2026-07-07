@@ -19,14 +19,23 @@ struct TaskRowView: View {
                     ? "checkmark.circle.fill"
                     : "circle"
                 )
+                .font(.title3)
                 .foregroundColor(.yellow)
-            }.buttonStyle(.plain)
-        VStack(alignment: .leading, spacing: 4) {
-            Text(task.title)
-                .strikethrough(task.isCompleted)
-                .foregroundStyle(
-                    task.isCompleted ? .secondary : .primary
-                )
+            }
+            .buttonStyle(.plain)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Text(task.title)
+                        .font(.headline)
+
+                    if task.reminderDate != nil {
+                        Image(systemName: "bell.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            
 
             if let details = task.details,
                !details.isEmpty {
@@ -35,8 +44,25 @@ struct TaskRowView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
+                
+            if let createdAt = task.createdAt {
+                HStack(spacing: 4) {
+                    Image(systemName: "calendar")
+                    Text(
+                        createdAt,
+                        format: .dateTime
+                            .day()
+                            .month()
+                            .year()
+                    )
+                }
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            }
          }
+            Spacer()
         }
+        .padding(.vertical, 4)
     }
 }
 

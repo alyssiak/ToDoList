@@ -70,7 +70,7 @@ final class TaskListPresenter: ObservableObject {
     func toggleTask(_ task: ToDoTask) {
         Task {
             do {
-                try await interactor.toggleTask(id: task.id)
+                try await interactor.toggleTask(task)
                 await reloadTasks()
             } catch {
                 handle(error)
@@ -95,10 +95,10 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func addTask(title: String, details: String?) {
+    func addTask(title: String, details: String?, reminderDate: Date?) {
         Task {
             do {
-                try await interactor.createTask(title: title, details: details)
+                try await interactor.createTask(title: title, details: details, reminderDate: reminderDate)
                 await reloadTasks()
             } catch {
                 handle(error)
@@ -106,10 +106,10 @@ final class TaskListPresenter: ObservableObject {
         }
     }
     
-    func updateTask(id: UUID, title: String, details: String?) {
+    func updateTask(id: UUID, title: String, details: String?, reminderDate: Date?) {
        Task {
             do {
-                try await interactor.updateTask(id: id, title: title, details: details)
+                try await interactor.updateTask(id: id, title: title, details: details, reminderDate: reminderDate)
                 await reloadTasks()
             } catch {
                 handle(error)

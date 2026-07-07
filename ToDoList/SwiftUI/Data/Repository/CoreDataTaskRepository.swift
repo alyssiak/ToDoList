@@ -51,28 +51,43 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
                     id: id,
                     title: title,
                     details: item.desc,
-                    isCompleted: item.isCompleted
+                    isCompleted: item.isCompleted,
+                    createdAt: item.createdAt,
+                    reminderDate: item.reminderDate
                 )
             }
         }
     }
 
-    func createTask(title: String, details: String?) async throws {
+    func createTask(title: String, details: String?, reminderDate: Date?) async throws -> ToDoTask {
         let context = stack.backgroundContext()
 
-        try await context.perform {
+        return try await context.perform {
+            let id = UUID()
+            let createdAt = Date()
             let item = TaskItem(context: context)
-            item.id = UUID()
+            
+            item.id = id
             item.title = title
             item.desc = details
-            item.createdAt = Date()
+            item.createdAt = createdAt
             item.isCompleted = false
+            item.reminderDate = reminderDate
 
             try context.save()
+            
+            return ToDoTask(
+                id: id,
+                title: title,
+                details: details,
+                isCompleted: false,
+                createdAt: createdAt,
+                reminderDate: reminderDate
+            )
         }
     }
 
-    func updateTask(id: UUID, title: String, details: String?) async throws {
+    func updateTask(id: UUID, title: String, details: String?, reminderDate: Date?) async throws {
         let context = stack.backgroundContext()
         
         try await context.perform {
@@ -83,6 +98,7 @@ final class CoreDataTaskRepository: TaskRepositoryProtocol {
             
             item.title = title
             item.desc = details
+            item.reminderDate = reminderDate
             try context.save()
         }
     }
