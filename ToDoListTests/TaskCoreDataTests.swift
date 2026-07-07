@@ -1,79 +1,96 @@
-import Foundation
-import CoreData
 import XCTest
 @testable import ToDoList
 
 final class TaskCoreDataTests: XCTestCase {
-    var stack: NSPersistentContainer!
+    private var repository: CoreDataTaskRepository!
     
     override func setUp() {
         super.setUp()
-        stack = NSPersistentContainer(name: "ToDoList")
-        let desc = NSPersistentStoreDescription()
-        desc.type = NSInMemoryStoreType
-        stack.persistentStoreDescriptions = [desc]
-                stack.loadPersistentStores { _, error in
-            XCTAssertNil(error)
+        let stack = CoreDataStack(inMemory: true)
+        repository = .init(stack: stack)
+    }
+    
+    override func tearDown() {
+        repository = nil
+        super.tearDown()
+    }
+    
+    func testCreateAndFetchTask() async throws {
+            let reminderDate = Date().addingTimeInterval(3600)
+
+            _ = try await repository.createTask(
+                title: "Test task",
+                details: "Some description",
+                reminderDate: reminderDate,
+                isImportant: true
+            )
+
+            let tasks = try await repository.fetchTasks(matching: nil)
+
+            XCTAssertEqual(tasks.count, 1)
+            XCTAssertEqual(tasks.first?.title, "Test task")
+            XCTAssertEqual(tasks.first?.details, "Some description")
+            XCTAssertEqual(tasks.first?.isCompleted, false)
+            XCTAssertEqual(tasks.first?.isImportant, true)
+            XCTAssertNotNil(tasks.first?.reminderDate)
         }
-    }
-    
-    // Test #1: Cоздание и чтение задачи
-    func testCreateAndFetchTask() throws {
-        let ctx = stack.viewContext
-        let item = TaskItem(context: ctx)
-        item.id = UUID()
-        item.title = "Test task"
-        item.desc = "Some description"
-        item.createdAt = Date()
-        item.isCompleted = false
-        try ctx.save()
-        
-        let req: NSFetchRequest<TaskItem> = TaskItem.fetchRequest()
-        let results = try ctx.fetch(req)
-        XCTAssertEqual(results.count, 1)
-        XCTAssertEqual(results.first?.title, "Test task")
-        XCTAssertEqual(results.first?.isCompleted, false)
-    }
-    
-    // Test #2: Переключение флага
-    func testToggleCompleted() throws {
-        let ctx = stack.viewContext
-        let item = TaskItem(context: ctx)
-        item.id = UUID()
-        item.title = "Toogle me"
-        item.createdAt = Date()
-        item.isCompleted = false
-        try ctx.save()
-        
-        let id = item.objectID
-            if let same = try ctx.existingObject(with: id) as? TaskItem {
-                same.isCompleted.toggle()
-                try ctx.save()
-            }
-        let refreshed = try ctx.existingObject(with: id) as! TaskItem
-        XCTAssertEqual(refreshed.isCompleted, true)
-    }
-    
-    // Test #3: Удаление задачи
-    func testDeleteTask() throws {
-        let ctx = stack.viewContext
-        let item = TaskItem(context: ctx)
-        item.id = UUID()
-        item.title = "Delete task"
-        item.desc = "Temporary description"
-        item.createdAt = Date()
-        item.isCompleted = false
-        try ctx.save()
-        
-        let req: NSFetchRequest<TaskItem> = TaskItem.fetchRequest()
-        var results = try ctx.fetch(req)
-        XCTAssertEqual(results.count, 1)
-        XCTAssertEqual(results.first?.title, "Delete task")
-        XCTAssertEqual(results.first?.desc, "Temporary description")
-        
-        ctx.delete(item)
-        try ctx.save()
-        results = try ctx.fetch(req)
-        XCTAssertTrue(results.isEmpty)
-    }
+
+        func testToggleCompletedClearsReminder() async throws {
+            let task = try await repository.createTask(
+                title: "Task with reminder",
+                details: nil,
+                reminderDate: Date().addingTimeInterval(3600),
+                isImportant: false
+            )
+
+            try await repository.toggleTask(id: task.id)
+
+            let tasks = try await repository.fetchTasks(matching: nil)
+
+            XCTAssertEqual(tasks.first?.isCompleted, true)
+            XCTAssertNil(tasks.first?.reminderDate)
+        }
+
+        func testToggleImportant() async throws {
+            let task = try await repository.createTask(
+                title: "Important later",
+                details: nil,
+                reminderDate: nil,
+                isImportant: false
+            )
+
+            try await repository.toggleImportant(id: task.id)
+
+            let tasks = try await repository.fetchTasks(matching: nil)
+
+            XCTAssertEqual(tasks.first?.isImportant, true)
+        }
+
+        func testExpiredReminderIsClearedOnFetch() async throws {
+            _ = try await repository.createTask(
+                title: "Expired reminder",
+                details: nil,
+                reminderDate: Date().addingTimeInterval(-3600),
+                isImportant: false
+            )
+
+            let tasks = try await repository.fetchTasks(matching: nil)
+
+            XCTAssertNil(tasks.first?.reminderDate)
+        }
+
+        func testDeleteTask() async throws {
+            let task = try await repository.createTask(
+                title: "Delete task",
+                details: nil,
+                reminderDate: nil,
+                isImportant: false
+            )
+
+            try await repository.deleteTask(id: task.id)
+
+            let tasks = try await repository.fetchTasks(matching: nil)
+
+            XCTAssertTrue(tasks.isEmpty)
+        }
 }
