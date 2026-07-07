@@ -10,15 +10,29 @@ import CoreData
 
 class CoreDataStack {
     static let shared = CoreDataStack()
-    private init() {}
+    private let inMemory: Bool
+    init(inMemory: Bool = false) {
+        self.inMemory = inMemory
+    }
     
-    let persistentContainer: NSPersistentContainer = {
+    lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ToDoList")
+       
+        if inMemory {
+            let description = NSPersistentStoreDescription()
+            description.type = NSInMemoryStoreType
+            container.persistentStoreDescriptions = [description]
+        }
+        
+        if let description = container.persistentStoreDescriptions.first {
+            description.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
+            description.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
+        }
+
         container.loadPersistentStores { _, error in
             if let error = error as NSError? { fatalError("Unresolved error \(error), \(error.userInfo)") }
             }
         
-        // Главный контекст для UI
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return container
